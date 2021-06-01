@@ -1,5 +1,7 @@
 function directories = listDirs(dirName)
 %directories is list of strings, each string is a directorie of pic
+
+
 tempStr = dir(dirName);
 directories = {tempStr.name};
 
@@ -7,5 +9,6 @@ directories = {tempStr.name};
 directories(1) = [];
 directories(1) = [];
 
+directories = strcat(dirName, '/', directories);
 end
 

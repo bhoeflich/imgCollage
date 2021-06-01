@@ -2,25 +2,40 @@ classdef picCollage
     
     
     properties
-        picStru
-        picLst
+        
+        imgLst
     end
     
     methods
         function obj = picCollage(dirName)
-            obj.picStru = dir(dirName);
-            obj.picLst = fileLst(obj.picStru);
+            obj.imgLst = listDirs(dirName);
+          
         end
         
-        function lst = fileLst(files)
-            for i = 1:length(files)
-                if files(i).name ~= '.' || struct(i).name ~= '..'
-                    lst(end+1) = files(i).name;
-                end
+        function directories = listDirs(dirName)
+            %directories is list of strings, each string is a directorie of pic
+            
+            %Tasks for Method:
+                %check if directory is missing 
+                %must work for win and mac
+                %maybe 2 methods 
+                %works only if folder with pics in same dir !!
                 
-            end
+            tempStr = dir(dirName);
+            directories = {tempStr.name};
+            
+            %to delete . and .. (current and parent folder)
+            directories(1) = [];
+            directories(1) = [];
+            
+            % concatenates folder with / ans filname (Mac???)
+            
+            directories = strcat(dirName, '/', directories);
         end
-        
+
     end
+    
+        
+  
 end
 
