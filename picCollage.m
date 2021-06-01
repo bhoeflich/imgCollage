@@ -18,7 +18,7 @@ classdef picCollage
             %Tasks for Method:
                 %check if directory is missing 
                 %must work for win and mac
-                %maybe 2 methods 
+                %maybe 2 methods of different method 
                 %works only if folder with pics in same dir !!
                 
             tempStr = dir(dirName);
@@ -29,7 +29,7 @@ classdef picCollage
             directories(1) = [];
             
             % concatenates folder with / ans filname (Mac???)
-            
+        
             directories = strcat(dirName, '/', directories);
         end
 
