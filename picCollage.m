@@ -2,7 +2,6 @@ classdef picCollage
     
     
     properties
-        
         imgLst
     end
     

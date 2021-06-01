@@ -8,7 +8,8 @@ directories = {tempStr.name};
 %to delete . and .. (current and parent folder)
 directories(1) = [];
 directories(1) = [];
+%cell beschränken und code verkürzen 
 
-directories = strcat(dirName, '/', directories);
+directories = fullfile(dirName, directories);
 end
 
