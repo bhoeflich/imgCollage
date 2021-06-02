@@ -21,6 +21,6 @@ octave-workspace
 
 .DS_Store 
 
-/resources/*
+**/resources/
 
 
