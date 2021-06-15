@@ -1,11 +1,14 @@
-function frame = buildFrame(rowsCol, colsCol, maxImgHeight, maxImgWidth, border)
-%Erstellt den Schwarzen Hintergrung
-%Border Input über uniformCollage Methode
-
-height = (rowsCol * maxImgHeight) + border * (rowsCol + 1);
-width = (colsCol * maxImgWidth) + border * (colsCol + 1);
-
-frame = uint8(zeros(height, width , 3));
+function frame = buildFrame(frameDims)
+%info:
+    %creates black background
+%return
+    %format: uint8, black color
+%input args: 
+    %frame dims: array of heigth and width of frame
+%usage:
+    %uniform collage, nonuniform collage 
+frame = uint8(zeros(frameDims(1), frameDims(2) , 3));
 end
+
 
 
