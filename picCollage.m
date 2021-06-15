@@ -94,6 +94,9 @@ classdef picCollage
             
         end
         
+      
+        
+        
         function Container = loadImgs(obj)
             %info:
                 % loads images into cell array
@@ -171,7 +174,7 @@ classdef picCollage
             %usage:
                 %uniform collage
             
-            if obj.imgMaxSize(1) >= obj.imgMaxSize(1)
+            if obj.imgMaxSize(1) >= obj.imgMaxSize(2)
                 
                 %biggest picture upright
                 height = 2 * obj.border + obj.imgMaxSize(1);
@@ -184,6 +187,23 @@ classdef picCollage
             end
             
             frameDims = [height, width];
+        end
+        
+        
+        function pattNoUniCol(obj)
+            hight  = obj.imgMaxSize(1);
+            width = obj.imgMaxSize(2);
+            
+            imgDims = [];
+            
+            if hight >= width(2)
+                for i = 1:obj.n
+                    imgDims{i} = [hight , width];
+                
+                end
+                
+            end
+            
         end
         
         
