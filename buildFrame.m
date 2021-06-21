@@ -6,7 +6,8 @@ function frame = buildFrame(frameDims)
 %input args: 
     %frame dims: array of heigth and width of frame
 %usage:
-    %uniform collage, nonuniform collage 
+    %uniformCol, noUniformCol
+    
 frame = uint8(zeros(frameDims(1), frameDims(2) , 3));
 end
 

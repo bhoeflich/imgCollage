@@ -1,67 +1,101 @@
 classdef picCollage
     
     properties  
-        imgDirPath
-        imgLst
-        imgContainer
-        imgMaxSize
-        img1Size
-        pattCol
         n
+        % number of picturs in collage
+        
         border
+        % border in px around collage (uniform: between pictures)
+        
+        imgDirPath 
+        % string with the absolute path to direct. with images
+        
+        imgLst
+        % cell array that all contains absolute paths to images 
+        
+        imgContainer
+        % cell array that contains n uint8 pictures
+        
+        imgMaxSize
+        % dimensions of largest image
+        
+        img1Size
+        % dimensions of first image
+        
+        pattCol
+        % pattern of uniform collage 
     end
     
     methods
-            
+        %______________ main methods to generate collages ______________
+        
         function obj = picCollage(n, border)
-            %constructor
             
-            % Dateipfad des Verzeichnisses mit den Bildern wird übergeben
-            obj.imgDirPath = cDirec('Choose a directory with images: \n');
-            
-            %Dateipfad wird listDird Funktion übergeben, um eine Liste von
-            %Bilddateipfaden zu erstellen
-            obj.imgLst = listDirs(obj.imgDirPath);
-            
-            %Anzahl der Bilder aus dem Verzeichnis
             obj.n = n;
+            % is set when a instance of picCollage is created
             
-            %Rand um Bilder in px
             obj.border = border;
+            % is set when a instance of picCollage is created
             
-            %Container mit n Bildern aus dem Verzeichnis in einem cell
-            %array
+            obj.imgDirPath = cDirec('Choose a directory with images : \n');
+            % cDirec is a static function that returns absolute path of
+            % chosen directory to imgDirPath 
+            % no matter which OS!!
+            
+            obj.imgLst = listDirs(obj.imgDirPath);
+            % listDirs is a function that returns an cell array 
+            % to imgLst with all absolute paths to the files in imgDirPath
+            % no matter which OS!!
+            
             obj.imgContainer = obj.loadImgs;
+            % loads n images into imgContainer stored into cell array  
             
-            %Maximale Fotodimension der Bilder im Container
             obj.imgMaxSize = obj.maxSize;
-            
-            %height and width of first pic in Container 
+            % imgMaxSize finds dimensions of largest image in imgConatiner
+            % returns it as a vector [1x2] (only used for uniformCol)
+          
             obj.img1Size = size(obj.imgContainer{1});
+            % imgMaxSize finds dimensions of first image in imgConatiner
+            % returns it as a vector [1x2] (only used for noUniformCol)
             
-            %Raster für uniform Collage
             obj.pattCol = obj.patternCol();
+            % pattern col generates pattern for uniformCol
             
         end
         
+       
+        %______________ main methods to generate collages ______________
+        
         function collage = uniformCol(obj)
             %info:
-                % creates collage with pictures of same size 
+                % creates collage with images of same size 
             %return
-                %format: vector 1x2, info about height, width 
+                %format: unint8 image 
             %input args:
-                %obj.pattCol obj.imgMaxSize obj.border
+                %--
             %usage:
-                %uniform collage
+                %uniformCol
+                
             collage = imgUniPlace(obj, buildFrame(obj.calcUniFrame()));
             
             image(collage)
             axis image
+            axis equal
             axis off
             
         end
         
         function collage = noUniformCol(obj)
+            %info:
+                % creates collage with images, image of the next picture is
+                % always halve the size of the one before 
+            %return
+                %format: unint8 image 
+            %input args:
+                %--
+            %usage:
+                %noUniformCol
+                
             collage = imgNoUniPlace(obj, buildFrame(obj.calcNoUniFrame()));
             
             image(collage)
@@ -69,8 +103,77 @@ classdef picCollage
             axis off
         end
         
+    end
+    
+    methods (Access = private)
         
+        %______________ functions to initilazie properties _____________ 
+        
+        function directories = listDirs(obj)
+            %info:
+                % returns a list of all absolute paths to the files in imgDirPath
+                % no matter which OS you are using
+            %return
+                %format: cell of strings
+            %input args:
+                %--
+            %usage:
+                %uniformCol, noUniformCol
+                
+            tempStruct = dir(obj.imgDirPath);
+            
+            directories = fullfile({tempStruct(3:obj.n).folder}, {tempStruct(3:obj.n).name});
+        end
+        
+        function Container = loadImgs(obj)
+            %info:
+                % returns cell array with n images
+            %return
+                %format: cell array with uint8 in every cell 
+            %input args:
+                %--
+            %usage:
+                %uniformCol
+            
+            Container = cell(1, obj.n);
+            for i = 1:obj.n
+                Container{i} = imread(char(obj.imgLst(i)));
+                %To Do:
+                %Was passiert wenn n groesser als Anzahl der Objekte in obj.imgLst!!!!!!!
+                %if Abfrage
+            end
+        end
+  
+        function maxImgDim = maxSize(obj)
+            %info:
+                % returns dimensions (height, width) of largest picture
+            %return
+                %format: vector [1x2] 
+            %input args:
+                %--
+            %usage:
+                %uniformCol
+            
+            for i = 1:length(obj.imgContainer)
+                [imgHeight(i), imgWidth(i), clrs(i)] = size(obj.imgContainer{i});
+            end
+            
+            maxImgDim = [max(imgHeight), max(imgWidth)];
+        end
+        
+        
+        %______________ functions executed in main methods _____________
+        
+       
         function collage = imgUniPlace(obj, frame)
+             %info:
+                %places pictures on background frame and returns collage
+            %return
+                %format: uint8 frame (black background) with pictures on   
+            %input args:
+                %frame: generated by buildFrame function
+            %usage:
+                %uniformCol
             
             [imgX, imgY] = obj.imgUniPosition();
             
@@ -78,7 +181,8 @@ classdef picCollage
             for row = 1:length(imgY)
                 for col = 1:length(imgX)
                     if counter <= obj.n
-                        frame(imgY{row}(1):imgY{row}(2), imgX{col}(1):imgX{col}(2),:) = imresize(obj.imgContainer{counter}, obj.imgMaxSize);
+                        frame(imgY{row}(1):imgY{row}(2), imgX{col}(1):imgX{col}(2),:) ...
+                                = imresize(obj.imgContainer{counter}, obj.imgMaxSize);
                         counter = counter +1;
                     end
                     
@@ -87,13 +191,35 @@ classdef picCollage
             collage = frame;
         end 
         
-        function [imgX, imgY] = imgUniPosition(obj)
-            %Platz fuer jedes Bild definieren (x,y) Abstand zu Achsen im Frame
-            %Abstand ist aktuell Rand|Maximale Bildbreite|Rand|Maximale Bildbreite| ...
-            %Bilder sind noch linksbündig
+        function collage = imgNoUniPlace(obj, frame)
+            %info:
+                %places pictures on background frame and returns collage
+            %return
+                %format: uint8 frame (black background) with pictures on   
+            %input args:
+                %frame: generated by buildFrame function
+            %usage:
+                %noUniformCol
             
-            %To Do:
-            %Formel fuer mittige Platzierung anstatt von maxImgWidth
+            
+            [imgX, imgY] = obj.imgNoUniPosition(obj.patternNoUniCol);
+            
+            for i = 1:obj.n
+                frame(imgY{i}(1):imgY{i}(2), imgX{i}(1):imgX{i}(2),:) = imresize(obj.imgContainer{i}, [obj.patternNoUniCol{1}(i), obj.patternNoUniCol{2}(i)]);
+            end
+            collage = frame;
+        end
+        
+        function [imgX, imgY] = imgUniPosition(obj)
+            %info:
+                %calculates the start and end points on x,y axis of
+                %each picture
+            %return
+                %format: vector with [1x2] vectors in it  
+            %input args:
+                %--
+            %usage:
+                %uniformCol
             
             for c = 1:obj.pattCol(2)
                 imgX{c} = [(((obj.border + 1) + ((c-1) * (obj.border) + ((c-1) * (obj.imgMaxSize(2)))))), ((c * obj.border) + (c * (obj.imgMaxSize(2))))];
@@ -106,47 +232,51 @@ classdef picCollage
             
         end
         
-        function Container = loadImgs(obj)
+        function [imgX, imgY] = imgNoUniPosition(obj, imgDims)
             %info:
-                % loads images into cell array
-            %return
-                %format: cell array with uint8 in every cell 
+                %calculates the start and end points on x,y axis of
+                %each picture
+            %return:
+                %format: vector with [1x2] vectors in it  
             %input args:
-                %obj.pattCol obj.imgMaxSize obj.border
+                %imgDims
             %usage:
-                %uniform collage
-            %laed die Bilder n Bilder in ein Cell array
-            Container = cell(1, obj.n);
-            for i = 1:obj.n
-                Container{i} = imread(char(obj.imgLst(i)));
-                %To Do:
-                %Was passiert wenn n groesser als Anzahl der Objekte in obj.imgLst!!!!!!!
-                %if Abfrage
-            end
-        end
-        
-        function maxImgDim = maxSize(obj)
-            for i = 1:length(obj.imgContainer)
-                [imgHeight(i), imgWidth(i), clrs(i)] = size(obj.imgContainer{i});
+                %noUniformCol
+                
+            %if else structure for landscape and portrait!!!!!!!!!
+                
+            imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
+            imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
+            imgX{2} = [imgX{1}(2) + 1, imgX{1}(2) + imgDims{2}(2)];
+            imgY{2} = [obj.border + 1, obj.border + imgDims{1}(2)];
+            
+            for i = 3:obj.n
+                if mod(i,2) == 0
+                    %i is even
+                    imgX{i} = [imgX{1}(2) + imgDims{2}(2) - imgDims{2}(i) + 1, imgX{1}(2) + imgDims{2}(2)];
+                    imgY{i} = [imgY{i-2}(2) + 1, imgY{i-2}(2)+ imgDims{1}(i)];
+                    
+                else
+                    %i is odd
+                    imgX{i} = [imgX{i-2}(2) + 1, imgX{i-2}(2) + imgDims{2}(i)];
+                    imgY{i} = [imgY{1}(2) - imgDims{1}(i) + 1, imgY{1}(2)];
+                end
             end
             
-            maxImgDim = [max(imgHeight), max(imgWidth)];
         end
         
         function pattCol = patternCol(obj)
             %info:
-            % makes pattern for collage
-            %return
-            %format: vector 1x2, info about rows and collumns of
-            %collage
+                % that calculates rows and columns
+            %return:
+                %format: vector 1x2, info about rows and collumns of collage
             %input args:
-            %obj.n
+                %--
             %usage:
-            %uniform collage
+                %uinformCol
             
-            %Legt die Reihen und Spalten der Collage fest
-            %To Do
-            %Spaltenanzahl nach n variabel machen
+           
+            %{
             colsCol = 3;
             if mod(obj.n , colsCol) == 0
                 rowsCol = obj.n/colsCol;
@@ -155,51 +285,51 @@ classdef picCollage
             end
             %Vektot mit Anzahl der Reihen und Spalten der Collage
             pattCol = [rowsCol, colsCol];
-        end
-        
-        function frameDims = calcUniFrame(obj)
-            %info:
-            % calculates dimensions of the background frame for uniform
-            % collage
-            %return
-            %format: vector 1x2, info about height, width
-            %input args:
-            %obj.pattCol obj.imgMaxSize obj.border
-            %usage:
-            %uniform collage
-            height = (obj.pattCol(1) * obj.imgMaxSize(1)) + obj.border * (obj.pattCol(1) + 1);
-            width = (obj.pattCol(2) * obj.imgMaxSize(2)) + obj.border * (obj.pattCol(2) + 1);
-            frameDims = [height, width];
-        end
-        
-        function frameDims = calcNoUniFrame(obj)
-            %info:
-            %calculates dimensions of the background frame for nonunif
-                %collage
-            %return
-                %format: vector 1x2, info about height, width
-            %input args:
-                %obj.pattCol obj.imgMaxSize obj.border
-            %usage:
-                %uniform collage
-            
-            if obj.img1Size(1) >= obj.img1Size(2)
-                
-                %biggest picture upright
-                height = 2 * obj.border + obj.img1Size(1);
-                width = 2 * obj.border + 2 * obj.img1Size(2);
-                
-            else
-                %biggest picture landscape
-                height = 2 * obj.border + 2 * obj.img1Size(1);
-                width = 2 * obj.border + obj.img1Size(2);
-            end
-            
-            frameDims = [height, width];
-        end
+            %}
          
-        function imgDims = patternNoUniCol(obj)
+            %Orientation in horizontal or vertical direction via input
             
+            s1 = 'H';
+            s2 = input('Choose orientation: Type "H" for Horizontal or "V" for Vertical\n', 's');
+            
+            %If Number of pictures is even rows and colums are of equal size, else,
+            %depending on the orientation chosen the rows or colums are rounded up or
+            %down, additional control whether enough space for number of pictures, if
+            %not row or column is added
+            
+            if mod(obj.n, sqrt(obj.n)) == 0
+                rowsCol = sqrt(obj.n);
+                colsCol = sqrt(obj.n);
+            else
+                if strcmp(s1, s2) == 1
+                    rowsCol = floor(sqrt(obj.n));
+                    colsCol = ceil(sqrt(obj.n));
+                    
+                    if colsCol * rowsCol < obj.n
+                        colsCol = colsCol +1;
+                    end
+                    
+                else
+                    rowsCol = ceil(sqrt(obj.n));
+                    colsCol = floor(sqrt(obj.n));
+                    
+                    if colsCol * rowsCol < obj.n
+                        rowsCol = rowsCol +1;
+                    end
+                end
+            end
+            pattCol = [rowsCol, colsCol];
+        end
+        
+        function imgDims = patternNoUniCol(obj)
+            %info:
+                %calculates height and width of each picture in noUniformCol
+            %return
+                %format: cell array with vectors in it 
+            %input args:
+                %--
+            %usage:
+                %noUniformCol
             
             % Dimensions of first picture are max. dimensions
             
@@ -239,44 +369,46 @@ classdef picCollage
             end
             imgDims = {height , width};
         end
+        
+        function frameDims = calcUniFrame(obj)
+            %info:
+                %calculates the dimensions of the background frame
+            %return
+                %format: vector 1x2, info about height, width 
+            %input args:
+                %--
+            %usage:
+                %uniformCol noUniformCol
                 
-        function [imgX, imgY] = imgNoUniPosition(obj, imgDims)
-            %if Abfrage 
-            
-            %if obj.img1Size(1) >= obj.img1Size(2)
-            %portait
-            %***** ********** ********** **********
-            imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
-            imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
-            imgX{2} = [imgX{1}(2) + 1, imgX{1}(2) + imgDims{2}(2)];
-            imgY{2} = [obj.border + 1, obj.border + imgDims{1}(2)];
-            
-            for i = 3:obj.n
-                if mod(i,2) == 0
-                    %i is even
-                    imgX{i} = [imgX{1}(2) + imgDims{2}(2) - imgDims{2}(i) + 1, imgX{1}(2) + imgDims{2}(2)];
-                    imgY{i} = [imgY{i-2}(2) + 1, imgY{i-2}(2)+ imgDims{1}(i)];
-                    
-                else
-                    %i is odd 
-                    imgX{i} = [imgX{i-2}(2) + 1, imgX{i-2}(2) + imgDims{2}(i)];
-                    imgY{i} = [imgY{1}(2) - imgDims{1}(i) + 1, imgY{1}(2)];
-                end
-            end
-             
-        end
-                 
-        function collage = imgNoUniPlace(obj, frame)
-            [imgX, imgY] = obj.imgNoUniPosition(obj.patternNoUniCol);
-            
-            for i = 1:obj.n
-                frame(imgY{i}(1):imgY{i}(2), imgX{i}(1):imgX{i}(2),:) = imresize(obj.imgContainer{i}, [obj.patternNoUniCol{1}(i), obj.patternNoUniCol{2}(i)]);
-            end
-            collage = frame;
+            height = (obj.pattCol(1) * obj.imgMaxSize(1)) + obj.border * (obj.pattCol(1) + 1);
+            width = (obj.pattCol(2) * obj.imgMaxSize(2)) + obj.border * (obj.pattCol(2) + 1);
+            frameDims = [height, width];
         end
         
+        function frameDims = calcNoUniFrame(obj)
+            %info:
+            %calculates dimensions of the background frame for noUniformCol
+            %return
+                %format: vector 1x2, info about height, width
+            %input args:
+                %--
+            %usage:
+                %noUniformCol
+            
+            if obj.img1Size(1) >= obj.img1Size(2)
+                %biggest picture upright
+                height = 2 * obj.border + obj.img1Size(1);
+                width = 2 * obj.border + 2 * obj.img1Size(2);
+            else
+                %biggest picture landscape
+                height = 2 * obj.border + 2 * obj.img1Size(1);
+                width = 2 * obj.border + obj.img1Size(2);
+            end
+            frameDims = [height, width];
+        end
+end
+   
     
-    end
     
 end
     
