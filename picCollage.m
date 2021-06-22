@@ -42,7 +42,7 @@ classdef picCollage
             % chosen directory to imgDirPath 
             % no matter which OS!!
             
-            obj.imgLst = listDirs(obj.imgDirPath);
+            obj.imgLst = obj.listDirs;
             % listDirs is a function that returns an cell array 
             % to imgLst with all absolute paths to the files in imgDirPath
             % no matter which OS!!
@@ -122,7 +122,7 @@ classdef picCollage
                 
             tempStruct = dir(obj.imgDirPath);
             
-            directories = fullfile({tempStruct(3:obj.n).folder}, {tempStruct(3:obj.n).name});
+            directories = fullfile({tempStruct(3:obj.n + 2).folder}, {tempStruct(3:obj.n + 2).name});
         end
         
         function Container = loadImgs(obj)
@@ -237,38 +237,51 @@ classdef picCollage
                 %calculates the start and end points on x,y axis of
                 %each picture
             %return:
-                %format: vector with [1x2] vectors in it  
+                %format: vector with [1x2] vectors in it
             %input args:
                 %imgDims
             %usage:
                 %noUniformCol
-                
+            
             
             if obj.img1Size(1) >= obj.img1Size(2)
                 % when first picture is portait format
-            imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
-            imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
-            imgX{2} = [imgX{1}(2) + 1, imgX{1}(2) + imgDims{2}(2)];
-            imgY{2} = [obj.border + 1, obj.border + imgDims{1}(2)];
-            
-            for i = 3:obj.n
-                if mod(i,2) == 0
-                    %i is even
-                    imgX{i} = [imgX{1}(2) + imgDims{2}(2) - imgDims{2}(i) + 1, imgX{1}(2) + imgDims{2}(2)];
-                    imgY{i} = [imgY{i-2}(2) + 1, imgY{i-2}(2)+ imgDims{1}(i)];
-                    
-                else
-                    %i is odd
-                    imgX{i} = [imgX{i-2}(2) + 1, imgX{i-2}(2) + imgDims{2}(i)];
-                    imgY{i} = [imgY{1}(2) - imgDims{1}(i) + 1, imgY{1}(2)];
+                imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
+                imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
+                imgX{2} = [imgX{1}(2) + 1, imgX{1}(2) + imgDims{2}(2)];
+                imgY{2} = [obj.border + 1, obj.border + imgDims{1}(2)];
+                
+                for i = 3:obj.n
+                    if mod(i,2) == 0
+                        %i is even
+                        imgX{i} = [imgX{1}(2) + imgDims{2}(2) - imgDims{2}(i) + 1, imgX{1}(2) + imgDims{2}(2)];
+                        imgY{i} = [imgY{i-2}(2) + 1, imgY{i-2}(2)+ imgDims{1}(i)];
+                    else
+                        %i is odd
+                        imgX{i} = [imgX{i-2}(2) + 1, imgX{i-2}(2) + imgDims{2}(i)];
+                        imgY{i} = [imgY{1}(2) - imgDims{1}(i) + 1, imgY{1}(2)];
+                    end
+                end
+                
+            else
+                %when first picture is in landscape format
+                imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
+                imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
+                imgX{2} = [obj.border + 1, obj.border + imgDims{2}(2)];
+                imgY{2} = [imgY{1}(2) + 1, imgY{1}(2) + imgDims{1}(2)];
+                
+                for i = 3:obj.n
+                    if mod(i,2) == 0
+                        %i is even
+                        imgX{i} = [imgX{i-2}(2) + 1, imgX{i-2}(2) + imgDims{2}(i)];
+                        imgY{i} = [imgY{2}(2) - imgDims{1}(i) + 1, imgY{2}(2)];
+                    else
+                        %i is odd
+                        imgX{i} = [imgX{1}(2) - imgDims{2}(i) + 1, imgX{1}(2)];
+                        imgY{i} = [imgY{i-2}(2) + 1, imgY{i-2}(2)+ imgDims{1}(i)];
+                    end
                 end
             end
-            
-            else
-                %when first picture is in landscape format 
-                
-            end
-            
             
         end
         
@@ -403,11 +416,11 @@ classdef picCollage
                 %noUniformCol
             
             if obj.img1Size(1) >= obj.img1Size(2)
-                %biggest picture upright
+                %first picture portait
                 height = 2 * obj.border + obj.img1Size(1);
                 width = 2 * obj.border + 2 * obj.img1Size(2);
             else
-                %biggest picture landscape
+                %first picture landscape
                 height = 2 * obj.border + 2 * obj.img1Size(1);
                 width = 2 * obj.border + obj.img1Size(2);
             end
