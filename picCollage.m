@@ -243,8 +243,9 @@ classdef picCollage
             %usage:
                 %noUniformCol
                 
-            %if else structure for landscape and portrait!!!!!!!!!
-                
+            
+            if obj.img1Size(1) >= obj.img1Size(2)
+                % when first picture is portait format
             imgX{1} = [obj.border + 1, obj.border + imgDims{2}(1)];
             imgY{1} = [obj.border + 1, obj.border + imgDims{1}(1)];
             imgX{2} = [imgX{1}(2) + 1, imgX{1}(2) + imgDims{2}(2)];
@@ -262,6 +263,12 @@ classdef picCollage
                     imgY{i} = [imgY{1}(2) - imgDims{1}(i) + 1, imgY{1}(2)];
                 end
             end
+            
+            else
+                %when first picture is in landscape format 
+                
+            end
+            
             
         end
         
